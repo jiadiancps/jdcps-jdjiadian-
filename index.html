@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>订单查询 - 京东订单系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+        }
+
+        .search-box {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 60px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+                margin-bottom: 30px;
+            }
+
+            .search-box input {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+        }
+
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+        }
+
+        .search-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            background: white;
+            color: #666;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .search-btn {
+                padding: 12px 30px;
+                font-size: 14px;
+            }
+        }
+
+        .search-btn:hover {
+            background: #f5f5f5;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .notice-panel {
+            background: white;
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 40px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+        }
+
+        .notice-panel h2 {
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .notice-list {
+            color: #666;
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        .notice-list li {
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .notice-panel {
+                padding: 20px;
+                margin: 0 10px 20px;
+            }
+
+            .notice-panel h2 {
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+
+            .notice-list {
+                font-size: 13px;
+                line-height: 1.8;
+            }
+
+            .notice-list li {
+                margin-bottom: 10px;
+            }
+        }
+
+        .result-panel {
+            background: white;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .result-panel {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+        }
+
+        .order-info {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-info:last-child {
+            border-bottom: none;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .order-id {
+            color: #333;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .order-id {
+                font-size: 14px;
+                word-break: break-all;
+            }
+        }
+
+        .order-status {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .order-details {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .order-details div {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .order-details {
+                font-size: 13px;
+            }
+        }
+
+        .no-result {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            display: none;
+            background: white;
+            max-width: 900px;
+            margin: 40px auto;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .no-result {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+        }
+
+        /* 自定义弹窗样式 */
+        .custom-alert-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            z-index: 10000;
+            animation: slideDown 0.3s ease;
+        }
+
+        .custom-alert-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .custom-alert-header::before {
+            content: '⚠️';
+            font-size: 28px;
+        }
+
+        .custom-alert-body {
+            padding: 30px 25px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            text-align: center;
+        }
+
+        .custom-alert-body p {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .custom-alert-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .custom-alert-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .custom-alert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .custom-alert-btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .custom-alert {
+                max-width: 85%;
+            }
+
+            .custom-alert-header {
+                font-size: 18px;
+                padding: 15px;
+            }
+
+            .custom-alert-body {
+                padding: 20px 15px;
+                font-size: 14px;
+            }
+
+            .custom-alert-btn {
+                padding: 10px 30px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>搜索订单，查询状态</h1>
+        <div class="search-box">
+            <input type="text" id="orderId" placeholder="请输入订单号" onkeypress="if(event.keyCode==13) searchOrder()">
+            <button class="search-btn" onclick="searchOrder()">查询</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="resultPanel" class="result-panel">
+            <div id="orderList"></div>
+        </div>
+
+        <div id="noResult" class="no-result">
+            <p>未查询到相关订单信息</p>
+        </div>
+
+        <div class="notice-panel">
+            <h2>订单查询须知</h2>
+            <ol class="notice-list">
+                <li>查单系统有延时，请下单2分钟后再查，显示下单信息即为【跟团成功】，下单3～10分钟出现结算佣金为"暂无相关订单"即【跟团失败】，请尽快重新下单。</li>
+                <li>跟团成功产品享受【正品保障】优质服务（手机除外，30天退货联系群内客服）</li>
+                <li>京东待付款订单即可查询，淘宝已付款订单才能查询（待付款订单不能查）</li>
+                <li>京东可能存在拆单更新订单号的情况，付款后请用京东最新订单号进行查询。</li>
+                <li>下单不可使用超级红包，京享礼金，京东e卡，以及任何返利软件，会导致订单跟团失败，无法享受团购运费以及售后政策。</li>
+                <li>如查询结果显示【流量异常&违规订单】等特殊情况；未发货订单请重新下单，已发货订单联系群内客服后续处理</li>
+                
+            </ol>
+        </div>
+    </div>
+
+    <!-- 自定义弹窗 -->
+    <div id="customAlertOverlay" class="custom-alert-overlay" onclick="closeCustomAlert()">
+        <div class="custom-alert" onclick="event.stopPropagation()">
+            <div class="custom-alert-header">
+                <span>重要提示</span>
+            </div>
+            <div class="custom-alert-body">
+                <p id="customAlertMessage"></p>
+            </div>
+            <div class="custom-alert-footer">
+                <button class="custom-alert-btn" onclick="closeCustomAlert()">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示自定义弹窗
+        function showCustomAlert(message) {
+            document.getElementById('customAlertMessage').textContent = message;
+            document.getElementById('customAlertOverlay').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // 禁止页面滚动
+        }
+
+        // 关闭自定义弹窗
+        function closeCustomAlert() {
+            document.getElementById('customAlertOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // 恢复页面滚动
+        }
+
+        // 查询订单
+        async function searchOrder() {
+            const orderId = document.getElementById('orderId').value.trim();
+            
+            if (!orderId) {
+                showCustomAlert('请输入订单号');
+                return;
+            }
+
+            console.log('查询订单号:', orderId);
+
+            try {
+                const url = `/api/orders?orderId=${orderId}`;
+                console.log('请求URL:', url);
+                const response = await fetch(url);
+                console.log('响应状态:', response.status);
+                const result = await response.json();
+                console.log('响应数据:', result);
+
+                const resultPanel = document.getElementById('resultPanel');
+                const orderList = document.getElementById('orderList');
+                const noResult = document.getElementById('noResult');
+
+                if (result.success && result.data && result.data.data.length > 0) {
+                    // 有效状态码：15-待付款, 16-已付款, 17-已完成, 24-已付定金, 33-超市卡充值
+                    const validCodes = [15, 16, 17, 24, 33];
+                    const order = result.data.data[0];
+                    
+                    // 检查validCode是否为有效状态
+                    if (!validCodes.includes(order.valid_code)) {
+                        // 无效状态，显示错误提示
+                        showCustomAlert('此订单无法获取跟团权益，您订单号中使用了京豆、返利、小红包等情况，请注意检查，或联系群内客服');
+                        resultPanel.style.display = 'none';
+                        noResult.style.display = 'none';
+                        return;
+                    }
+
+                    // 显示订单信息
+                    orderList.innerHTML = '';
+                    result.data.data.forEach(order => {
+                        const statusMap = {
+                            15: { text: '待付款', class: 'status-pending' },
+                            16: { text: '已付款', class: 'status-success' },
+                            17: { text: '已完成', class: 'status-success' },
+                            24: { text: '已付定金', class: 'status-pending' },
+                            33: { text: '超市卡充值', class: 'status-success' }
+                        };
+                        const status = statusMap[order.valid_code] || { text: '未知', class: 'status-pending' };
+
+                        // 处理下单时间，只显示年月日
+                        let orderTime = order.order_time || '-';
+                        if (orderTime !== '-') {
+                            try {
+                                // 尝试解析时间
+                                const date = new Date(orderTime);
+                                if (!isNaN(date.getTime())) {
+                                    // 格式化为 YYYY-MM-DD
+                                    const year = date.getFullYear();
+                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                    const day = String(date.getDate()).padStart(2, '0');
+                                    orderTime = `${year}-${month}-${day}`;
+                                }
+                            } catch (e) {
+                                // 如果解析失败，尝试截取前10位
+                                if (orderTime.length > 10 && orderTime.includes('-')) {
+                                    orderTime = orderTime.substring(0, 10);
+                                }
+                            }
+                        }
+
+                        const orderHtml = `
+                            <div class="order-info">
+                                <div class="order-header">
+                                    <span class="order-id">订单号：${order.order_id}</span>
+                                    <span class="order-status ${status.class}">${status.text}</span>
+                                </div>
+                                <div class="order-details">
+                                    <div><strong>商品名称：</strong>${order.sku_name || '-'}</div>
+                                    <div><strong>下单时间：</strong>${orderTime}</div>
+                                    <div><strong>商品数量：</strong>${order.sku_num || 0} 件</div>
+                                    <div><strong>商品单价：</strong>¥${parseFloat(order.price || 0).toFixed(2)}</div>
+                                    <div><strong>店铺名称：</strong>${order.shop_name || '-'}</div>
+                                </div>
+                            </div>
+                        `;
+                        orderList.innerHTML += orderHtml;
+                    });
+                    resultPanel.style.display = 'block';
+                    noResult.style.display = 'none';
+                } else {
+                    // 未查询到订单，显示错误提示
+                    showCustomAlert('此订单无法获取跟团权益，您订单号中使用了京豆、返利、小红包等情况，请注意检查，或联系群内客服');
+                    resultPanel.style.display = 'none';
+                    noResult.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('查询失败:', error);
+                showCustomAlert('查询失败，请稍后重试');
+            }
+        }
+    </script>
+</body>
+</html>
