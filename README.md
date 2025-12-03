@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/badge/python-%3E%3D3.8-blue)](https://www.python.org/)
 [![MySQL](https://img.shields.io/badge/mysql-%3E%3D5.7-orange)](https://www.mysql.com/)
 
-基于 Node.js + Python + MySQL 的京东联盟订单自动采集与查询系统
+基于 Node.js + Python + MySQL 的京东联盟订单自动采集与查询系统（可直接下载zip压缩包，新手不懂git，不知道如何创建文件夹）
 
 [特性](#-主要功能) • [安装](#-安装步骤) • [配置](#-配置说明) • [使用](#-使用说明) • [部署](#-部署指南)
 
